@@ -6,6 +6,13 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from .models import AnalysisResult
 from .tasks import process_contract
+from rest_framework.exceptions import PermissionDenied
+from .models import User
+from .serializers import UserSerializer
+from firebase_admin import auth as firebase_auth
+from django.utils import timezone
+from .models import Report
+from .services import delete_user_storage_files
 
 
 class ContractListCreateView(generics.ListCreateAPIView):
@@ -48,3 +55,39 @@ class ContractAnalysisView(APIView):
             "liability": result.liability_json,
             "report_url": getattr(result.report, "file_url", None),
         })
+
+
+class MeView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        return Response(UserSerializer(request.user).data)
+
+
+class AdminDeleteUserView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def delete(self, request, pk):
+        if request.user.role != "admin":
+            raise PermissionDenied("Admins only")
+
+        target = User.objects.get(pk=pk)
+
+        # Delete from Firebase Auth first
+        firebase_auth.delete_user(target.firebase_uid)
+
+        # Collect local file paths before the Postgres cascade wipes the rows
+        storage_paths = [c.file_url.path for c in target.contracts.all() if c.file_url]
+        report_paths = [
+            r.file_url.path
+            for r in Report.objects.filter(analysis_result__contract__user=target)
+            if r.file_url
+        ]
+
+        target.delete()  # Postgres cascades: contracts, analysis_results, reports
+
+        delete_user_storage_files(storage_paths + report_paths)
+
+        print(f"[ADMIN LOG] {request.user.email} deleted user {target.email} at {timezone.now()}")
+
+        return Response(status=204)

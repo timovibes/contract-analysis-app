@@ -1,6 +1,7 @@
 import io
 import json
 from django.conf import settings
+import os
 
 
 def extract_text(file_field) -> str:
@@ -62,3 +63,9 @@ def generate_pdf(result) -> bytes:
     c.save()
     buffer.seek(0)
     return buffer.read()
+
+def delete_user_storage_files(paths: list[str]):
+    """Explicitly clean up locally stored files — Postgres cascade does NOT touch the filesystem."""
+    for path in paths:
+        if path and os.path.exists(path):
+            os.remove(path)
