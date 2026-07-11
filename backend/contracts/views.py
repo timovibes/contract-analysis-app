@@ -5,6 +5,7 @@ from .serializers import ContractSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .models import AnalysisResult
+from .tasks import process_contract
 
 
 class ContractListCreateView(generics.ListCreateAPIView):
@@ -16,7 +17,8 @@ class ContractListCreateView(generics.ListCreateAPIView):
         return Contract.objects.filter(user=self.request.user).order_by("-uploaded_at")
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user, status="pending")
+        contract = serializer.save(user=self.request.user, status="pending")
+        process_contract.delay(contract.id)   # returns 202 immediately, worker picks it up
 
 class ContractDetailView(generics.RetrieveAPIView):
     serializer_class = ContractSerializer
