@@ -1,0 +1,23 @@
+import { Link, useNavigate } from "react-router-dom";
+import { signOut } from "firebase/auth";
+import { auth } from "../firebase";
+
+export default function Navbar() {
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await signOut(auth);
+    navigate("/");
+  };
+
+  return (
+    <nav className="navbar">
+      <Link to="/dashboard" className="navbar-brand">Docket</Link>
+      <div className="navbar-links">
+        <Link to="/dashboard">Contracts</Link>
+        <Link to="/upload">Upload</Link>
+        <button onClick={handleLogout} className="navbar-logout">Log out</button>
+      </div>
+    </nav>
+  );
+}

@@ -2,7 +2,12 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../api";
 
-const badgeColor = { pending: "gray", processing: "orange", completed: "green", failed: "red" };
+const stampClass = {
+  pending: "stamp stamp-pending",
+  processing: "stamp stamp-processing",
+  completed: "stamp stamp-completed",
+  failed: "stamp stamp-failed",
+};
 
 export default function Dashboard() {
   const [contracts, setContracts] = useState([]);
@@ -13,16 +18,25 @@ export default function Dashboard() {
 
   return (
     <div>
-      <h2>Your Contracts</h2>
-      <Link to="/upload">Upload a contract</Link>
-      <ul>
-        {contracts.map((c) => (
-          <li key={c.id}>
-            <Link to={`/contracts/${c.id}`}>{c.filename}</Link>{" "}
-            <span style={{ color: badgeColor[c.status] }}>[{c.status}]</span>
-          </li>
-        ))}
-      </ul>
+      <div className="dashboard-header">
+        <h1>Your contracts</h1>
+        <Link to="/upload" className="btn btn-secondary">Upload contract</Link>
+      </div>
+
+      {contracts.length === 0 ? (
+        <div className="contract-list">
+          <p className="empty-state">No contracts yet. Upload one to get started.</p>
+        </div>
+      ) : (
+        <ul className="contract-list">
+          {contracts.map((c) => (
+            <li key={c.id} className="contract-row">
+              <Link to={`/contracts/${c.id}`}>{c.filename}</Link>
+              <span className={stampClass[c.status]}>{c.status}</span>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }

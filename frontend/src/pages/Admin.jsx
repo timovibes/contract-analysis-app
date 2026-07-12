@@ -11,7 +11,7 @@ export default function Admin() {
   }, []);
 
   if (me && me.role !== "admin") return <Navigate to="/dashboard" />;
-  if (!me) return <p>Loading...</p>;
+  if (!me) return <p className="upload-status">Loading…</p>;
 
   const handleDelete = async () => {
     if (!window.confirm(`Delete user ${userId}? This cannot be undone.`)) return;
@@ -21,10 +21,15 @@ export default function Admin() {
   };
 
   return (
-    <div>
-      <h2>Admin Panel</h2>
-      <input placeholder="Target user ID" value={userId} onChange={(e) => setUserId(e.target.value)} />
-      <button onClick={handleDelete}>Delete user</button>
+    <div className="doc-card">
+      <p className="eyebrow">Admin</p>
+      <h1>User management</h1>
+      <p className="admin-warning">Deleting a user permanently removes their contracts, analyses, and reports.</p>
+      <div className="field">
+        <label>Target user ID</label>
+        <input type="text" value={userId} onChange={(e) => setUserId(e.target.value)} />
+      </div>
+      <button onClick={handleDelete} className="btn btn-danger">Delete user</button>
     </div>
   );
 }

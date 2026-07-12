@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { sendPasswordResetEmail } from "firebase/auth";
+import { Link } from "react-router-dom";
 import { auth } from "../firebase";
 
 export default function ForgotPassword() {
@@ -9,20 +10,29 @@ export default function ForgotPassword() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     await sendPasswordResetEmail(auth, email);
-    setSent(true); // Firebase hosts the actual reset page — nothing else to build here
+    setSent(true);
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h2>Reset Password</h2>
-      {sent ? (
-        <p>Check your email for a reset link.</p>
-      ) : (
-        <>
-          <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-          <button type="submit">Send reset email</button>
-        </>
-      )}
-    </form>
+    <div className="auth-shell">
+      <div className="auth-card">
+        <p className="eyebrow">Contract analysis pro</p>
+        <h1>Reset password</h1>
+        {sent ? (
+          <p>Check your email for a reset link.</p>
+        ) : (
+          <form onSubmit={handleSubmit}>
+            <div className="field">
+              <label>Email</label>
+              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+            </div>
+            <button type="submit" className="btn btn-primary">Send reset email</button>
+          </form>
+        )}
+        <p className="auth-links">
+          <Link to="/">Back to log in</Link>
+        </p>
+      </div>
+    </div>
   );
 }
