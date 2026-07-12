@@ -38,7 +38,7 @@ export default function Report() {
           <h1>Analysis report</h1>
         </div>
         <div className={`risk-badge ${riskTier(analysis.overall_risk_score)}`}>
-          <span className="risk-number">{analysis.overall_risk_score}</span>
+          <span className="risk-number">{analysis.overall_risk_score + "%"}</span>
           <span className="risk-label">Risk</span>
         </div>
       </div>
