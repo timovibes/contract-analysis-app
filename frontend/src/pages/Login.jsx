@@ -27,6 +27,7 @@ export default function Login() {
       <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
       <button type="submit">Log in</button>
       <p><Link to="/forgot-password">Forgot password?</Link></p>
+      <p>Don't have an account? <Link to="/signup">Sign up</Link></p>
     </form>
   );
 }
