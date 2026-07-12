@@ -9,6 +9,9 @@ class User(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    is_authenticated = True  # required by DRF's IsAuthenticated permission check
+    is_anonymous = False
+
     def __str__(self):
         return self.email
 

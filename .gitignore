@@ -5,4 +5,5 @@ __pycache__/
 db.sqlite3
 firebase-service-account.json
 *.pyc
-.DS_Storecd
+.DS_Store
+media/

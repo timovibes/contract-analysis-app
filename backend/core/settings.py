@@ -147,4 +147,7 @@ CELERY_RESULT_BACKEND = "redis://localhost:6379/0"
 
 GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY')
 
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
+
 from . import firebase  # noqa: F401  (initializes Firebase Admin SDK on startup)
