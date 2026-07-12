@@ -19,10 +19,9 @@ def extract_text(file_field) -> str:
 
 def call_gemini(text: str) -> dict:
     """Send the contract text to Gemini and return structured analysis."""
-    import google.generativeai as genai
+    from google import genai
 
-    genai.configure(api_key=settings.GEMINI_API_KEY)
-    model = genai.GenerativeModel("gemini-1.5-flash")
+    client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
     prompt = f"""Analyze this contract text and return ONLY valid JSON with this exact shape:
 {{
@@ -35,7 +34,10 @@ def call_gemini(text: str) -> dict:
 Contract text:
 {text[:20000]}
 """
-    response = model.generate_content(prompt)
+    response = client.models.generate_content(
+        model="gemini-3.5-flash",
+        contents=prompt,
+    )
     parsed = json.loads(response.text.strip().strip("```json").strip("```"))
 
     return {

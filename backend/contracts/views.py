@@ -47,13 +47,17 @@ class ContractAnalysisView(APIView):
         if not result:
             return Response({"detail": "No analysis yet"}, status=404)
 
+        report_url = None
+        if hasattr(result, "report") and result.report.file_url:
+            report_url = request.build_absolute_uri(result.report.file_url.url)
+
         return Response({
             "version": result.version,
             "overall_risk_score": result.overall_risk_score,
             "non_compete": result.non_compete_json,
             "dates": result.dates_json,
             "liability": result.liability_json,
-            "report_url": getattr(result.report, "file_url", None),
+            "report_url": report_url,
         })
 
 
