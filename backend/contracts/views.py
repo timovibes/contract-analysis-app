@@ -95,3 +95,15 @@ class AdminDeleteUserView(APIView):
         print(f"[ADMIN LOG] {request.user.email} deleted user {target.email} at {timezone.now()}")
 
         return Response(status=204)
+
+
+class ContractReprocessView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk):
+        contract = Contract.objects.get(pk=pk, user=request.user)
+        contract.status = "pending"
+        contract.error_message = None
+        contract.save()
+        process_contract.delay(contract.id)
+        return Response({"detail": "Reprocessing started"}, status=202)

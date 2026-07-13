@@ -24,7 +24,7 @@ export default function Report() {
   useEffect(() => { load(); }, [id]);
 
   const rerun = async () => {
-    await api.post("/contracts", {});
+    await api.post(`/contracts/${id}/reprocess`);
     setTimeout(() => load(), 4000);
   };
 
