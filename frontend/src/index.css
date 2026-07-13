@@ -360,3 +360,38 @@ input:focus {
   color: var(--color-brick);
   margin-bottom: 16px;
 }
+
+/* ---------- Profile ---------- */
+
+.profile-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--color-rule);
+}
+.profile-row:last-child { border-bottom: none; }
+
+.profile-row dt {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-muted);
+}
+.profile-row dd { margin: 0; }
+
+.profile-edit-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 12px 0;
+}
+.profile-edit-row input { flex: 1; }
+
+.save-confirmed {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--color-teal);
+  margin-top: 10px;
+}
