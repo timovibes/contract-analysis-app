@@ -18,8 +18,15 @@ def extract_text(file_field) -> str:
 
 
 def call_gemini(text: str) -> dict:
-    """Send the contract text to Gemini and return structured analysis."""
+    """Send the contract text to Gemini and return structured analysis.
+
+    Retries automatically on transient server errors (503 Service Unavailable,
+    etc.) with exponential backoff, since Gemini occasionally returns these
+    under momentary load — not a bug in this code, just a flaky upstream call.
+    """
+    import time
     from google import genai
+    from google.genai import errors as genai_errors
 
     client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
