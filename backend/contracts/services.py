@@ -20,9 +20,10 @@ def extract_text(file_field) -> str:
 def call_gemini(text: str) -> dict:
     """Send the contract text to Gemini and return structured analysis.
 
-    Retries automatically on transient server errors (503 Service Unavailable,
-    etc.) with exponential backoff, since Gemini occasionally returns these
-    under momentary load — not a bug in this code, just a flaky upstream call.
+    Retries automatically on transient errors (429 Too Many Requests,
+    503 Service Unavailable) with exponential backoff, since these are
+    momentary — not permanent — failures. Non-retryable errors (bad
+    request, auth failure, malformed response, etc.) raise immediately.
     """
     import time
     from google import genai
@@ -41,18 +42,34 @@ def call_gemini(text: str) -> dict:
 Contract text:
 {text[:20000]}
 """
-    response = client.models.generate_content(
-        model="gemini-3.5-flash",
-        contents=prompt,
-    )
-    parsed = json.loads(response.text.strip().strip("```json").strip("```"))
 
-    return {
-        "non_compete": parsed["non_compete"],
-        "dates": parsed["dates"],
-        "liability": parsed["liability"],
-        "risk_score": float(parsed["risk_score"]),
-    }
+    max_retries = 3
+    backoff_seconds = [10, 30, 60]  # per-minute quota resets every 60s
+
+    last_error = None
+    for attempt in range(max_retries + 1):
+        try:
+            response = client.models.generate_content(
+                model="gemini-3.5-flash",
+                contents=prompt,
+            )
+            parsed = json.loads(response.text.strip().strip("```json").strip("```"))
+            return {
+                "non_compete": parsed["non_compete"],
+                "dates": parsed["dates"],
+                "liability": parsed["liability"],
+                "risk_score": float(parsed["risk_score"]),
+            }
+        except genai_errors.APIError as e:
+            last_error = e
+            is_retryable = getattr(e, "code", None) in (429, 503)
+            if not is_retryable or attempt == max_retries:
+                raise
+            time.sleep(backoff_seconds[attempt])
+
+    # Should be unreachable (loop either returns or raises), but keeps
+    # the function's return type honest for static analysis.
+    raise last_error
 
 
 def generate_pdf(result) -> bytes:
@@ -72,6 +89,7 @@ def generate_pdf(result) -> bytes:
     c.save()
     buffer.seek(0)
     return buffer.read()
+
 
 def delete_user_storage_files(paths: list[str]):
     """Explicitly clean up locally stored files — Postgres cascade does NOT touch the filesystem."""
