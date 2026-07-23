@@ -11,21 +11,34 @@ function riskTier(score) {
 export default function Report() {
   const { id } = useParams();
   const [analysis, setAnalysis] = useState(null);
-  const [version, setVersion] = useState("");
+  const [rerunning, setRerunning] = useState(false);
+  const [error, setError] = useState("");
 
-  const load = (v) => {
-    const url = v ? `/contracts/${id}/analysis?version=${v}` : `/contracts/${id}/analysis`;
-    api.get(url).then((res) => {
+  const load = () => {
+    api.get(`/contracts/${id}/analysis`).then((res) => {
       setAnalysis(res.data);
-      setVersion(String(res.data.version));
     });
   };
 
   useEffect(() => { load(); }, [id]);
 
   const rerun = async () => {
+    setError("");
+    setRerunning(true);
     await api.post(`/contracts/${id}/reprocess`);
-    setTimeout(() => load(), 4000);
+
+    const interval = setInterval(async () => {
+      const { data } = await api.get(`/contracts/${id}`);
+      if (data.status === "completed") {
+        clearInterval(interval);
+        setRerunning(false);
+        load();
+      } else if (data.status === "failed") {
+        clearInterval(interval);
+        setRerunning(false);
+        setError("Re-run failed: " + (data.error_message || "unknown error"));
+      }
+    }, 3000);
   };
 
   if (!analysis) return <p className="upload-status">Loading…</p>;
@@ -89,20 +102,16 @@ export default function Report() {
         </dl>
       </div>
 
+      {error && <p className="error-text">{error}</p>}
+
       <div className="report-actions">
         {analysis.report_url && (
           <a href={analysis.report_url} className="btn btn-secondary">Download PDF</a>
         )}
-        <button onClick={rerun} className="btn btn-secondary">Re-run analysis</button>
-        <label className="version-field">
-          Version
-          <input
-            type="number"
-            value={version}
-            onChange={(e) => setVersion(e.target.value)}
-            onBlur={() => load(version)}
-          />
-        </label>
+        <button onClick={rerun} className="btn btn-secondary" disabled={rerunning}>
+          {rerunning ? "Re-running…" : "Re-run analysis"}
+        </button>
+        <span className="version-field">Version {analysis.version}</span>
       </div>
     </div>
   );
