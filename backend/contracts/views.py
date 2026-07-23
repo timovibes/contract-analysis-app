@@ -114,3 +114,41 @@ class ContractReprocessView(APIView):
         contract.save()
         process_contract.delay(contract.id)
         return Response({"detail": "Reprocessing started"}, status=202)
+
+
+class PendingUsersView(generics.ListAPIView):
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        if self.request.user.role != "admin":
+            raise PermissionDenied("Admins only")
+        return User.objects.filter(status="pending").order_by("-created_at")
+
+
+class ApproveUserView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk):
+        if request.user.role != "admin":
+            raise PermissionDenied("Admins only")
+
+        target = User.objects.get(pk=pk)
+        target.status = "approved"
+        target.save()
+
+        return Response(UserSerializer(target).data)
+
+
+class RejectUserView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk):
+        if request.user.role != "admin":
+            raise PermissionDenied("Admins only")
+
+        target = User.objects.get(pk=pk)
+        target.status = "rejected"
+        target.save()
+
+        return Response(UserSerializer(target).data)

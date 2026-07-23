@@ -6,8 +6,16 @@ class User(models.Model):
     email = models.EmailField(unique=True)
     username = models.CharField(max_length=150)
     display_name = models.CharField(max_length=150, blank=True)
-    title = models.CharField(max_length=100, blank=True)  # "Advocate", "Paralegal", etc.
-    role = models.CharField(max_length=20, default="user")
+    title = models.CharField(max_length=100, blank=True)
+    role = models.CharField(max_length=20, default="user")  # "user" or "admin"
+
+    STATUS_CHOICES = [
+        ("pending", "pending"),
+        ("approved", "approved"),
+        ("rejected", "rejected"),
+    ]
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -16,7 +24,6 @@ class User(models.Model):
 
     def __str__(self):
         return self.email
-
 
 class Contract(models.Model):
     STATUS_CHOICES = [

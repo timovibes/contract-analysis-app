@@ -1,6 +1,6 @@
 from django.urls import path
-from .views import ContractListCreateView, ContractDetailView,ContractAnalysisView, MeView, AdminDeleteUserView
-from .views import ContractReprocessView
+from .views import ContractListCreateView, ContractDetailView, ContractAnalysisView, MeView, AdminDeleteUserView
+from .views import ContractReprocessView, PendingUsersView, ApproveUserView, RejectUserView
 
 urlpatterns = [
     path("contracts", ContractListCreateView.as_view(), name="contract-list-create"),
@@ -8,5 +8,8 @@ urlpatterns = [
     path("contracts/<int:pk>/analysis", ContractAnalysisView.as_view(), name="contract-analysis"),
     path("me", MeView.as_view(), name="me"),
     path("admin/users/<int:pk>", AdminDeleteUserView.as_view(), name="admin-delete-user"),
-    path("contracts/<int:pk>/reprocess", ContractReprocessView.as_view(), name="contract-reprocess")
+    path("contracts/<int:pk>/reprocess", ContractReprocessView.as_view(), name="contract-reprocess"),
+    path("admin/users/pending", PendingUsersView.as_view(), name="admin-pending-users"),
+    path("admin/users/<int:pk>/approve", ApproveUserView.as_view(), name="admin-approve-user"),
+    path("admin/users/<int:pk>/reject", RejectUserView.as_view(), name="admin-reject-user"),
 ]

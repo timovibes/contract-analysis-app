@@ -14,8 +14,8 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ["id", "email", "username", "display_name", "title", "role", "created_at", "contracts_count"]
-        read_only_fields = ["id", "email", "role", "created_at", "contracts_count"]
+        fields = ["id", "email", "username", "display_name", "title", "role", "status", "created_at", "contracts_count"]
+        read_only_fields = ["id", "email", "role", "status", "created_at", "contracts_count"]
 
     def get_contracts_count(self, obj):
         return obj.contracts.count()
