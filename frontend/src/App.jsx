@@ -33,6 +33,7 @@ export default function App() {
         <Route path="/contracts/:id" element={<ProtectedLayout><Report /></ProtectedLayout>} />
         <Route path="/admin" element={<ProtectedLayout><Admin /></ProtectedLayout>} />
         <Route path="/profile" element={<ProtectedLayout><Profile /></ProtectedLayout>} />
+        <Route path="/admin" element={<ApprovalGate adminOnly><Admin /></ApprovalGate>} />
       </Routes>
     </BrowserRouter>
   );
