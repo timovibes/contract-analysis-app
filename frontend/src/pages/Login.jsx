@@ -16,12 +16,6 @@ export default function Login() {
     e.preventDefault();
     try {
       await signInWithEmailAndPassword(auth, email, password);
-
-      if (!auth.currentUser.emailVerified) {
-        navigate("/verify-email");
-        return;
-      }
-
       const { data: me } = await api.get("/me");
 
       if (me.role === "admin") {

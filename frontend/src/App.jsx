@@ -10,7 +10,6 @@ import Navbar from "./components/Navbar";
 import Profile from "./pages/Profile";
 import PendingApproval from "./pages/PendingApproval";
 import ApprovalGate from "./components/ApprovalGate";
-import VerifyEmail from "./pages/VerifyEmail";
 
 function ProtectedLayout({ children }) {
   return (
@@ -35,7 +34,6 @@ export default function App() {
         <Route path="/admin" element={<ProtectedLayout><Admin /></ProtectedLayout>} />
         <Route path="/profile" element={<ProtectedLayout><Profile /></ProtectedLayout>} />
         <Route path="/admin" element={<ApprovalGate adminOnly><Admin /></ApprovalGate>} />
-        <Route path="/verify-email" element={<VerifyEmail />} />
       </Routes>
     </BrowserRouter>
   );

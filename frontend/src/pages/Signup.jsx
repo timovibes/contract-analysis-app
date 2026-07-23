@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
+import { createUserWithEmailAndPassword } from "firebase/auth";
 import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 import { auth } from "../firebase";
@@ -17,14 +17,8 @@ export default function Signup() {
     e.preventDefault();
     try {
       await createUserWithEmailAndPassword(auth, email, password);
-      // First authenticated call — still triggers get_or_create on the backend
       await api.patch("/me", { display_name: displayName });
-
-      await sendEmailVerification(auth.currentUser, {
-        url: `${window.location.origin}/verify-email`,
-      });
-
-      navigate("/verify-email");
+      navigate("/dashboard");
     } catch (err) {
       setError(err.message);
     }
