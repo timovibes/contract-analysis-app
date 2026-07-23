@@ -5,9 +5,16 @@ import api from "../api";
 const MAX_SIZE_MB = 20;
 const ALLOWED_TYPES = ["application/pdf", "text/plain"];
 
+const stampClass = {
+  pending: "stamp stamp-pending",
+  processing: "stamp stamp-processing",
+  completed: "stamp stamp-completed",
+  failed: "stamp stamp-failed",
+};
+
 export default function Upload() {
   const [status, setStatus] = useState("");
-  const [duplicate, setDuplicate] = useState(null); // holds existing contract if a name match is found
+  const [duplicate, setDuplicate] = useState(null);
   const [pendingFile, setPendingFile] = useState(null);
   const navigate = useNavigate();
 
@@ -65,6 +72,12 @@ export default function Upload() {
     await uploadFile(file);
   };
 
+  const handleCancel = () => {
+    setDuplicate(null);
+    setPendingFile(null);
+    navigate("/dashboard");
+  };
+
   const pollUntilDone = (id) => {
     setStatus("Processing...");
     const interval = setInterval(async () => {
@@ -77,27 +90,42 @@ export default function Upload() {
   };
 
   return (
-    <div>
-      <h2>Upload Contract</h2>
+    <div className="doc-card">
+      <p className="eyebrow">Upload</p>
+      <h1>Upload contract</h1>
 
       {duplicate ? (
-        <div className="doc-card">
-          <p>
-            You already uploaded a contract named <strong>{duplicate.filename}</strong> (status: {duplicate.status}).
+        <div>
+          <p style={{ marginBottom: 6 }}>
+            You already have a contract named <strong>{duplicate.filename}</strong>
           </p>
-          <p>Rerun analysis on the existing one instead of uploading a duplicate?</p>
-          <button className="btn btn-primary" onClick={handleRerunExisting}>
-            Rerun existing
-          </button>
-          <button className="btn btn-secondary" onClick={handleUploadAnyway}>
-            Upload as new anyway
-          </button>
+          <span className={stampClass[duplicate.status]}>{duplicate.status}</span>
+
+          <p style={{ marginTop: 18, color: "var(--color-muted)", fontSize: 13.5 }}>
+            Rerun analysis on the existing contract, or upload this as a separate one.
+          </p>
+
+          <div style={{ display: "flex", gap: 10, marginTop: 16 }}>
+            <button className="btn btn-primary" onClick={handleRerunExisting}>
+              Rerun existing
+            </button>
+            <button className="btn btn-secondary" onClick={handleUploadAnyway}>
+              Upload anyway
+            </button>
+            <button className="btn btn-secondary" onClick={handleCancel}>
+              Cancel
+            </button>
+          </div>
         </div>
       ) : (
-        <input type="file" onChange={handleFile} />
+        <>
+          <div className="field">
+            <label>Contract file</label>
+            <input type="file" onChange={handleFile} />
+          </div>
+          {status && <p className="upload-status">{status}</p>}
+        </>
       )}
-
-      <p>{status}</p>
     </div>
   );
 }
