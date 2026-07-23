@@ -5,11 +5,13 @@ class User(models.Model):
     firebase_uid = models.CharField(max_length=128, unique=True)
     email = models.EmailField(unique=True)
     username = models.CharField(max_length=150)
-    role = models.CharField(max_length=20, default="user")  # "user" or "admin"
+    display_name = models.CharField(max_length=150, blank=True)
+    title = models.CharField(max_length=100, blank=True)  # "Advocate", "Paralegal", etc.
+    role = models.CharField(max_length=20, default="user")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    is_authenticated = True  # required by DRF's IsAuthenticated permission check
+    is_authenticated = True
     is_anonymous = False
 
     def __str__(self):
