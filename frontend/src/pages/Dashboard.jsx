@@ -16,6 +16,12 @@ export default function Dashboard() {
     api.get("/contracts").then((res) => setContracts(res.data));
   }, []);
 
+  const formatDateTime = (value) =>
+    new Date(value).toLocaleString(undefined, {
+      year: "numeric", month: "short", day: "numeric",
+      hour: "numeric", minute: "2-digit",
+    });
+
   return (
     <div>
       <div className="dashboard-header">
@@ -32,7 +38,12 @@ export default function Dashboard() {
           {contracts.map((c) => (
             <li key={c.id} className="contract-row">
               <Link to={`/contracts/${c.id}`}>{c.filename}</Link>
-              <span className={stampClass[c.status]}>{c.status}</span>
+              <div className="contract-meta">
+                {(c.status === "completed" || c.status === "failed") && (
+                  <span className="contract-timestamp">{formatDateTime(c.updated_at)}</span>
+                )}
+                <span className={stampClass[c.status]}>{c.status}</span>
+              </div>
             </li>
           ))}
         </ul>
