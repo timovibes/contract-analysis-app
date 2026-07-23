@@ -3,6 +3,7 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 import { auth } from "../firebase";
+import api from "../api";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -15,7 +16,15 @@ export default function Login() {
     e.preventDefault();
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      navigate("/dashboard");
+      const { data: me } = await api.get("/me");
+
+      if (me.role === "admin") {
+        navigate("/admin");
+      } else if (me.status === "pending") {
+        navigate("/pending-approval");
+      } else {
+        navigate("/dashboard");
+      }
     } catch (err) {
       setError(err.message);
     }
