@@ -12,6 +12,7 @@ export default function Report() {
   const { id } = useParams();
   const [analysis, setAnalysis] = useState(null);
   const [rerunning, setRerunning] = useState(false);
+  const [rerunDone, setRerunDone] = useState(false);
   const [error, setError] = useState("");
 
   const load = () => {
@@ -24,6 +25,7 @@ export default function Report() {
 
   const rerun = async () => {
     setError("");
+    setRerunDone(false);
     setRerunning(true);
     await api.post(`/contracts/${id}/reprocess`);
 
@@ -32,6 +34,7 @@ export default function Report() {
       if (data.status === "completed") {
         clearInterval(interval);
         setRerunning(false);
+        setRerunDone(true);
         load();
       } else if (data.status === "failed") {
         clearInterval(interval);
@@ -103,6 +106,7 @@ export default function Report() {
       </div>
 
       {error && <p className="error-text">{error}</p>}
+      {rerunDone && <p className="save-confirmed">Re-run complete — showing latest results.</p>}
 
       <div className="report-actions">
         {analysis.report_url && (
