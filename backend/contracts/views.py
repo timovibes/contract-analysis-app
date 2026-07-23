@@ -53,6 +53,7 @@ class ContractAnalysisView(APIView):
 
         return Response({
             "version": result.version,
+            "filename": contract.filename,
             "overall_risk_score": result.overall_risk_score,
             "non_compete": result.non_compete_json,
             "dates": result.dates_json,

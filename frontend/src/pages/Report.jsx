@@ -51,7 +51,7 @@ export default function Report() {
       <div className="report-header">
         <div>
           <p className="eyebrow">Version {analysis.version}</p>
-          <h1>Analysis report</h1>
+          <h1>Analysis report for {analysis.filename}</h1>
         </div>
         <div className={`risk-badge ${riskTier(analysis.overall_risk_score)}`}>
           <span className="risk-number">{analysis.overall_risk_score + "%"}</span>
