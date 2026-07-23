@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
 import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 import { auth } from "../firebase";
@@ -18,7 +18,12 @@ export default function Signup() {
     try {
       await createUserWithEmailAndPassword(auth, email, password);
       await api.patch("/me", { display_name: displayName });
-      navigate("/dashboard");
+
+      await sendEmailVerification(auth.currentUser, {
+        url: `${window.location.origin}/verify-email`,
+      });
+
+      navigate("/verify-email");
     } catch (err) {
       setError(err.message);
     }

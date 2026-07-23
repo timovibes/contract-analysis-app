@@ -10,6 +10,7 @@ import Navbar from "./components/Navbar";
 import Profile from "./pages/Profile";
 import PendingApproval from "./pages/PendingApproval";
 import ApprovalGate from "./components/ApprovalGate";
+import VerifyEmail from "./pages/VerifyEmail";
 
 function ProtectedLayout({ children }) {
   return (
@@ -27,13 +28,13 @@ export default function App() {
         <Route path="/" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/verify-email" element={<VerifyEmail />} />
         <Route path="/pending-approval" element={<PendingApproval />} />
         <Route path="/dashboard" element={<ProtectedLayout><Dashboard /></ProtectedLayout>} />
         <Route path="/upload" element={<ProtectedLayout><Upload /></ProtectedLayout>} />
         <Route path="/contracts/:id" element={<ProtectedLayout><Report /></ProtectedLayout>} />
         <Route path="/admin" element={<ProtectedLayout><Admin /></ProtectedLayout>} />
         <Route path="/profile" element={<ProtectedLayout><Profile /></ProtectedLayout>} />
-        <Route path="/admin" element={<ApprovalGate adminOnly><Admin /></ApprovalGate>} />
       </Routes>
     </BrowserRouter>
   );
