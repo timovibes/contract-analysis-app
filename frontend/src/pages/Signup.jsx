@@ -34,7 +34,7 @@ export default function Signup() {
             <label>Display name</label>
             <input
               type="text"
-              placeholder="e.g. Advocate Tims"
+              placeholder="Display name"
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
               required
