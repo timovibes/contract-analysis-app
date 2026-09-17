@@ -36,6 +36,11 @@ def call_gemini(text: str) -> dict:
   "non_compete": {{"present": true/false, "details": "..."}},
   "dates": {{"effective_date": "...", "expiration_date": "...", "renewal_terms": "..."}},
   "liability": {{"cap_present": true/false, "details": "..."}},
+  "termination": {{"notice_period": "...", "for_cause": "...", "for_convenience": "..."}},
+  "indemnification": {{"present": true/false, "who_indemnifies": "...", "scope": "..."}},
+  "governing_law": {{"jurisdiction": "...", "dispute_resolution": "..."}},
+  "auto_renewal": {{"present": true/false, "opt_out_deadline": "...", "details": "..."}},
+  "red_flags": [{{"clause": "...", "reason": "..."}}],
   "risk_score": 0-100
 }}
 
@@ -58,6 +63,11 @@ Contract text:
                 "non_compete": parsed["non_compete"],
                 "dates": parsed["dates"],
                 "liability": parsed["liability"],
+                "termination": parsed.get("termination", {}),
+                "indemnification": parsed.get("indemnification", {}),
+                "governing_law": parsed.get("governing_law", {}),
+                "auto_renewal": parsed.get("auto_renewal", {}),
+                "red_flags": parsed.get("red_flags", []),
                 "risk_score": float(parsed["risk_score"]),
             }
         except genai_errors.APIError as e:
