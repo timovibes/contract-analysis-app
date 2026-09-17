@@ -58,6 +58,11 @@ class ContractAnalysisView(APIView):
             "non_compete": result.non_compete_json,
             "dates": result.dates_json,
             "liability": result.liability_json,
+            "termination": result.termination_json,
+            "indemnification": result.indemnification_json,
+            "governing_law": result.governing_law_json,
+            "auto_renewal": result.auto_renewal_json,
+            "red_flags": result.red_flags_json,
             "report_url": report_url,
         })
 
