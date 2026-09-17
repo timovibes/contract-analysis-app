@@ -28,6 +28,11 @@ def process_contract(contract_id):
         non_compete_json=analysis["non_compete"],
         dates_json=analysis["dates"],
         liability_json=analysis["liability"],
+        termination_json=analysis["termination"],
+        indemnification_json=analysis["indemnification"],
+        governing_law_json=analysis["governing_law"],
+        auto_renewal_json=analysis["auto_renewal"],
+        red_flags_json=analysis["red_flags"],
         overall_risk_score=analysis["risk_score"],
     )
 
