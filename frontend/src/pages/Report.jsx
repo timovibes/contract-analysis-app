@@ -105,6 +105,87 @@ export default function Report() {
         </dl>
       </div>
 
+      <div className="clause-group">
+        <p className="eyebrow">Termination</p>
+        <dl>
+          <div className="clause-row">
+            <dt>Notice period</dt>
+            <dd>{analysis.termination?.notice_period || "Not specified"}</dd>
+          </div>
+          <div className="clause-row">
+            <dt>For cause</dt>
+            <dd>{analysis.termination?.for_cause || "Not specified"}</dd>
+          </div>
+          <div className="clause-row">
+            <dt>For convenience</dt>
+            <dd>{analysis.termination?.for_convenience || "Not specified"}</dd>
+          </div>
+        </dl>
+      </div>
+
+      <div className="clause-group">
+        <p className="eyebrow">Indemnification</p>
+        <dl>
+          <div className="clause-row">
+            <dt>Present</dt>
+            <dd>{analysis.indemnification?.present ? "Yes" : "No"}</dd>
+          </div>
+          <div className="clause-row">
+            <dt>Who indemnifies</dt>
+            <dd>{analysis.indemnification?.who_indemnifies || "Not specified"}</dd>
+          </div>
+          <div className="clause-row">
+            <dt>Scope</dt>
+            <dd>{analysis.indemnification?.scope || "Not specified"}</dd>
+          </div>
+        </dl>
+      </div>
+
+      <div className="clause-group">
+        <p className="eyebrow">Governing law</p>
+        <dl>
+          <div className="clause-row">
+            <dt>Jurisdiction</dt>
+            <dd>{analysis.governing_law?.jurisdiction || "Not specified"}</dd>
+          </div>
+          <div className="clause-row">
+            <dt>Dispute resolution</dt>
+            <dd>{analysis.governing_law?.dispute_resolution || "Not specified"}</dd>
+          </div>
+        </dl>
+      </div>
+
+      <div className="clause-group">
+        <p className="eyebrow">Auto-renewal</p>
+        <dl>
+          <div className="clause-row">
+            <dt>Present</dt>
+            <dd>{analysis.auto_renewal?.present ? "Yes" : "No"}</dd>
+          </div>
+          <div className="clause-row">
+            <dt>Opt-out deadline</dt>
+            <dd>{analysis.auto_renewal?.opt_out_deadline || "Not specified"}</dd>
+          </div>
+          <div className="clause-row">
+            <dt>Details</dt>
+            <dd>{analysis.auto_renewal?.details || "Not specified"}</dd>
+          </div>
+        </dl>
+      </div>
+
+      {analysis.red_flags && analysis.red_flags.length > 0 && (
+        <div className="clause-group">
+          <p className="eyebrow">Red flags</p>
+          <ul>
+            {analysis.red_flags.map((flag, i) => (
+              <li key={i} className="clause-row">
+                <strong>{flag.clause}</strong> — {flag.reason}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       {error && <p className="error-text">{error}</p>}
       {rerunDone && <p className="save-confirmed">Re-run complete — showing latest results.</p>}
 
