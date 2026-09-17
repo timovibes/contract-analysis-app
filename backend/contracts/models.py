@@ -50,6 +50,11 @@ class AnalysisResult(models.Model):
     non_compete_json = models.JSONField()
     dates_json = models.JSONField()
     liability_json = models.JSONField()
+    termination_json = models.JSONField(default=dict)  # notice period, for-cause vs for-convenience terms
+    indemnification_json = models.JSONField(default=dict)  # who indemnifies whom, and for what
+    governing_law_json = models.JSONField(default=dict)  # jurisdiction and dispute resolution method
+    auto_renewal_json = models.JSONField(default=dict)  # whether contract silently renews, and notice deadline to opt out
+    red_flags_json = models.JSONField(default=list)  # list of {clause, reason} objects for risky/unusual terms
     overall_risk_score = models.FloatField()
     created_at = models.DateTimeField(auto_now_add=True)
 
