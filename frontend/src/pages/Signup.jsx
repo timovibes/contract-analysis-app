@@ -11,10 +11,13 @@ export default function Signup() {
   const [displayName, setDisplayName] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
+    setLoading(true);
     try {
       await createUserWithEmailAndPassword(auth, email, password);
       await api.patch("/me", { display_name: displayName });
@@ -26,6 +29,7 @@ export default function Signup() {
       navigate("/verify-email");
     } catch (err) {
       setError(err.message);
+      setLoading(false);
     }
   };
 
@@ -69,7 +73,9 @@ export default function Signup() {
               </button>
             </div>
           </div>
-          <button type="submit" className="btn btn-primary">Create account</button>
+          <button type="submit" className="btn btn-primary" disabled={loading}>
+            {loading ? "Creating account..." : "Create account"}
+          </button>
         </form>
         <p className="auth-links">
           Already have an account? <Link to="/">Log in</Link>
