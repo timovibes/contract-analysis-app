@@ -147,6 +147,8 @@ input:focus {
   width: 100%;
 }
 .btn-primary:hover { background: #0F1522; }
+.btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+.btn-primary:disabled:hover { background: var(--color-ink); }
 
 .btn-secondary {
   background: transparent;
