@@ -1,5 +1,6 @@
 from rest_framework import generics, permissions
 from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.generics import get_object_or_404
 from django.db.models import Avg, Max
 from .models import Contract
 from .serializers import ContractSerializer
@@ -29,22 +30,40 @@ class ContractListCreateView(generics.ListCreateAPIView):
         contract = serializer.save(user=self.request.user, status="pending")
         process_contract.delay(contract.id)   # returns 202 immediately, worker picks it up
 
-class ContractDetailView(generics.RetrieveAPIView):
+class ContractDetailView(generics.RetrieveDestroyAPIView):
     serializer_class = ContractSerializer
     permission_classes = [permissions.IsAuthenticated, IsApprovedUser]
 
     def get_queryset(self):
         return Contract.objects.filter(user=self.request.user)
-    
+
+    def perform_destroy(self, contract):
+        # Collect file paths before the Postgres cascade wipes the rows
+        # (mirrors AdminDeleteUserView's cleanup approach below).
+        storage_paths = [contract.file_url.path] if contract.file_url else []
+        report_paths = [
+            r.file_url.path
+            for r in Report.objects.filter(analysis_result__contract=contract)
+            if r.file_url
+        ]
+
+        contract.delete()  # cascades: analysis_results, reports
+
+        delete_user_storage_files(storage_paths + report_paths)
+
+
 class ContractAnalysisView(APIView):
     permission_classes = [permissions.IsAuthenticated, IsApprovedUser]
 
     def get(self, request, pk):
-        contract = Contract.objects.get(pk=pk, user=request.user)
+        contract = get_object_or_404(Contract, pk=pk, user=request.user)
         version = request.query_params.get("version")
 
         qs = contract.analysis_results.all()
-        result = qs.get(version=version) if version else qs.order_by("-version").first()
+        try:
+            result = qs.get(version=version) if version else qs.order_by("-version").first()
+        except (AnalysisResult.DoesNotExist, ValueError):
+            result = None
 
         if not result:
             return Response({"detail": "No analysis yet"}, status=404)
@@ -89,7 +108,7 @@ class AdminDeleteUserView(APIView):
         if request.user.role != "admin":
             raise PermissionDenied("Admins only")
 
-        target = User.objects.get(pk=pk)
+        target = get_object_or_404(User, pk=pk)
 
         # Delete from Firebase Auth first
         firebase_auth.delete_user(target.firebase_uid)
@@ -115,7 +134,7 @@ class ContractReprocessView(APIView):
     permission_classes = [permissions.IsAuthenticated, IsApprovedUser]
 
     def post(self, request, pk):
-        contract = Contract.objects.get(pk=pk, user=request.user)
+        contract = get_object_or_404(Contract, pk=pk, user=request.user)
         contract.status = "pending"
         contract.error_message = None
         contract.save()
@@ -140,7 +159,7 @@ class ApproveUserView(APIView):
         if request.user.role != "admin":
             raise PermissionDenied("Admins only")
 
-        target = User.objects.get(pk=pk)
+        target = get_object_or_404(User, pk=pk)
         target.status = "approved"
         target.save()
 
@@ -154,7 +173,7 @@ class RejectUserView(APIView):
         if request.user.role != "admin":
             raise PermissionDenied("Admins only")
 
-        target = User.objects.get(pk=pk)
+        target = get_object_or_404(User, pk=pk)
         target.status = "rejected"
         target.save()
 
