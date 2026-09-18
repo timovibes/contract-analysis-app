@@ -160,6 +160,9 @@ input:focus {
   color: #fff;
 }
 .btn-danger:hover { background: #872F2F; }
+.btn-danger:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.btn-sm { padding: 4px 12px; font-size: 12px; }
 
 .auth-links {
   margin-top: 16px;
