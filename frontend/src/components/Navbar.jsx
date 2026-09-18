@@ -28,6 +28,7 @@ export default function Navbar() {
         ) : (
           <>
             <Link to="/dashboard">Contracts</Link>
+            <Link to="/analytics">Analytics</Link>
             <Link to="/profile">Profile</Link>
           </>
         )}
