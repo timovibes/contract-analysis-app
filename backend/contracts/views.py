@@ -1,5 +1,6 @@
 from rest_framework import generics, permissions
 from rest_framework.parsers import MultiPartParser, FormParser
+from django.db.models import Avg, Max
 from .models import Contract
 from .serializers import ContractSerializer
 from rest_framework.views import APIView
@@ -13,13 +14,12 @@ from firebase_admin import auth as firebase_auth
 from django.utils import timezone
 from .models import Report
 from .services import delete_user_storage_files
-from django.db.models import Avg, Count, Q
 from .permissions import IsApprovedUser
 
 
 class ContractListCreateView(generics.ListCreateAPIView):
     serializer_class = ContractSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsApprovedUser]
     parser_classes = [MultiPartParser, FormParser]
 
     def get_queryset(self):
@@ -31,13 +31,13 @@ class ContractListCreateView(generics.ListCreateAPIView):
 
 class ContractDetailView(generics.RetrieveAPIView):
     serializer_class = ContractSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsApprovedUser]
 
     def get_queryset(self):
         return Contract.objects.filter(user=self.request.user)
     
 class ContractAnalysisView(APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsApprovedUser]
 
     def get(self, request, pk):
         contract = Contract.objects.get(pk=pk, user=request.user)
@@ -112,7 +112,7 @@ class AdminDeleteUserView(APIView):
 
 
 class ContractReprocessView(APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsApprovedUser]
 
     def post(self, request, pk):
         contract = Contract.objects.get(pk=pk, user=request.user)
@@ -160,20 +160,14 @@ class RejectUserView(APIView):
 
         return Response(UserSerializer(target).data)
 
+
 class AnalyticsSummaryView(APIView):
     permission_classes = [permissions.IsAuthenticated, IsApprovedUser]
 
     def get(self, request):
         # Latest analysis result per contract only — a re-run shouldn't count
         # the same contract twice in aggregate stats.
-        latest_ids = (
-            AnalysisResult.objects.filter(contract__user=request.user)
-            .values("contract_id")
-            .annotate(latest_version=Count("version"))  # placeholder, replaced below
-        )
-        # The annotate above is discarded; we actually need per-contract MAX version.
-        from django.db.models import Max
-        latest_ids = (
+        latest_versions = (
             AnalysisResult.objects.filter(contract__user=request.user)
             .values("contract_id")
             .annotate(max_version=Max("version"))
@@ -182,7 +176,7 @@ class AnalyticsSummaryView(APIView):
             AnalysisResult.objects.filter(
                 contract_id=row["contract_id"], version=row["max_version"]
             ).values_list("id", flat=True).first()
-            for row in latest_ids
+            for row in latest_versions
         ]
         results = AnalysisResult.objects.filter(id__in=latest_result_ids).order_by("created_at")
 
