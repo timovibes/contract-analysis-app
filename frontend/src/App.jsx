@@ -8,6 +8,7 @@ import Report from "./pages/Report";
 import Admin from "./pages/Admin";
 import Navbar from "./components/Navbar";
 import Profile from "./pages/Profile";
+import Analytics from "./pages/Analytics";
 import PendingApproval from "./pages/PendingApproval";
 import ApprovalGate from "./components/ApprovalGate";
 import VerifyEmail from "./pages/VerifyEmail";
@@ -35,6 +36,7 @@ export default function App() {
         <Route path="/contracts/:id" element={<ProtectedLayout><Report /></ProtectedLayout>} />
         <Route path="/admin" element={<ProtectedLayout><Admin /></ProtectedLayout>} />
         <Route path="/profile" element={<ProtectedLayout><Profile /></ProtectedLayout>} />
+        <Route path="/analytics" element={<ProtectedLayout><Analytics /></ProtectedLayout>} />
       </Routes>
     </BrowserRouter>
   );
