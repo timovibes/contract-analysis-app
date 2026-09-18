@@ -10,10 +10,13 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
+    setLoading(true);
     try {
       await signInWithEmailAndPassword(auth, email, password);
 
@@ -33,6 +36,7 @@ export default function Login() {
       }
     } catch (err) {
       setError(err.message);
+      setLoading(false);
     }
   };
 
@@ -66,7 +70,9 @@ export default function Login() {
               </button>
             </div>
           </div>
-          <button type="submit" className="btn btn-primary">Log in</button>
+          <button type="submit" className="btn btn-primary" disabled={loading}>
+            {loading ? "Logging in..." : "Log in"}
+          </button>
         </form>
         <p className="auth-links">
           <Link to="/forgot-password">Forgot password?</Link>
