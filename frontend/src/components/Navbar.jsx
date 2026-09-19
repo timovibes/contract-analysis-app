@@ -19,7 +19,22 @@ export default function Navbar() {
 
   return (
     <nav className="navbar">
-      <Link to={role === "admin" ? "/admin" : "/dashboard"} className="navbar-brand">
+      <Link
+        to={role === "admin" ? "/admin" : "/dashboard"}
+        className="navbar-brand"
+        style={{ display: "flex", alignItems: "center", gap: 8 }}
+      >
+        <span
+          aria-hidden="true"
+          style={{
+            width: 9,
+            height: 9,
+            borderRadius: 2,
+            background: "var(--accent)",
+            display: "inline-block",
+            flexShrink: 0,
+          }}
+        />
         Contract analysis pro
       </Link>
       <div className="navbar-links">
@@ -28,7 +43,6 @@ export default function Navbar() {
         ) : (
           <>
             <Link to="/dashboard">Contracts</Link>
-            <Link to="/analytics">Analytics</Link>
             <Link to="/profile">Profile</Link>
           </>
         )}
