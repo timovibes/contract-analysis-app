@@ -3,9 +3,9 @@ import { Link } from "react-router-dom";
 import api from "../api";
 
 function riskColor(score) {
-  if (score >= 70) return "var(--color-brick)";
-  if (score >= 40) return "var(--color-amber)";
-  return "var(--color-teal)";
+  if (score >= 70) return "var(--risk-high)";
+  if (score >= 40) return "var(--risk-med)";
+  return "var(--risk-low)";
 }
 
 function riskLabel(score) {
@@ -122,7 +122,7 @@ export default function Analytics() {
           <div className="analytics-bar-row" key={key}>
             <span className="analytics-bar-label">{clauseLabels[key] || key}</span>
             <div className="analytics-bar-track">
-              <div className="analytics-bar-fill" style={{ width: `${pct}%`, background: "var(--color-ink)" }} />
+              <div className="analytics-bar-fill" style={{ width: `${pct}%`, background: "var(--ink)" }} />
             </div>
             <span className="analytics-bar-count">{pct}%</span>
           </div>
@@ -133,7 +133,7 @@ export default function Analytics() {
         <h2>Risk trend</h2>
         {points.length > 1 ? (
           <svg viewBox={`0 0 ${w} ${h}`} className="analytics-trend-svg" preserveAspectRatio="none">
-            <polyline points={polylinePoints} fill="none" stroke="var(--color-ink)" strokeWidth="2" />
+            <polyline points={polylinePoints} fill="none" stroke="var(--ink)" strokeWidth="2" />
             {points.map((p, i) => (
               <circle key={i} cx={p.x} cy={p.y} r="3" fill={riskColor(p.risk_score)}>
                 <title>{`${p.contract_filename}: ${p.risk_score}`}</title>
