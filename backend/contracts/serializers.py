@@ -4,10 +4,16 @@ from .models import User
 
 
 class ContractSerializer(serializers.ModelSerializer):
+    latest_risk_score = serializers.SerializerMethodField()
+
     class Meta:
         model = Contract
-        fields = ["id", "filename", "file_url", "status", "error_message", "uploaded_at", "updated_at"]
-        read_only_fields = ["id", "status", "error_message", "uploaded_at", "updated_at"]
+        fields = ["id", "filename", "file_url", "status", "error_message", "uploaded_at", "updated_at", "latest_risk_score"]
+        read_only_fields = ["id", "status", "error_message", "uploaded_at", "updated_at", "latest_risk_score"]
+
+    def get_latest_risk_score(self, obj):
+        latest = obj.analysis_results.first()  # Meta.ordering = ["-version"]
+        return latest.overall_risk_score if latest else None
 
 class UserSerializer(serializers.ModelSerializer):
     contracts_count = serializers.SerializerMethodField()
