@@ -62,7 +62,7 @@ export default function Admin() {
             <li key={u.id} className="contract-row">
               <div>
                 <div style={{ fontWeight: 500 }}>{u.display_name || u.username}</div>
-                <div style={{ fontSize: 12.5, color: "var(--color-muted)" }}>{u.email}</div>
+                <div style={{ fontSize: 12.5, color: "var(--muted)" }}>{u.email}</div>
               </div>
               <div style={{ display: "flex", gap: 10 }}>
                 <button onClick={() => handleApprove(u.id)} className="btn btn-primary">Approve</button>
