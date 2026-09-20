@@ -8,6 +8,22 @@ function riskTier(score) {
   return "risk-low";
 }
 
+function riskLabel(score) {
+  if (score >= 70) return "High risk";
+  if (score >= 40) return "Medium risk";
+  return "Low risk";
+}
+
+const SECTIONS = [
+  { id: "non-compete", label: "Non-compete", keywords: ["non-compete", "noncompete", "compete"] },
+  { id: "dates", label: "Dates", keywords: ["date"] },
+  { id: "liability", label: "Liability", keywords: ["liability"] },
+  { id: "termination", label: "Termination", keywords: ["terminat"] },
+  { id: "indemnification", label: "Indemnification", keywords: ["indemnif"] },
+  { id: "governing-law", label: "Governing law", keywords: ["governing", "jurisdiction", "dispute"] },
+  { id: "auto-renewal", label: "Auto-renewal", keywords: ["renew"] },
+];
+
 export default function Report() {
   const { id } = useParams();
   const [analysis, setAnalysis] = useState(null);
@@ -46,157 +62,187 @@ export default function Report() {
 
   if (!analysis) return <p className="upload-status">Loading…</p>;
 
+  const redFlags = analysis.red_flags || [];
+  const sectionHasFlag = (keywords) =>
+    redFlags.some((f) => keywords.some((k) => (f.clause || "").toLowerCase().includes(k)));
+
+  const tier = riskTier(analysis.overall_risk_score);
+
   return (
     <div className="doc-card">
       <div className="report-header">
+        <div className="report-header-top">
+          <div>
+            <p className="eyebrow">Version {analysis.version}</p>
+            <h1>{analysis.filename}</h1>
+          </div>
+          {analysis.report_url && (
+            <a href={analysis.report_url} className="btn btn-secondary">Download PDF</a>
+          )}
+        </div>
+
+        <div className="risk-meter">
+          <div className="risk-meter-track">
+            <div
+              className={`risk-meter-fill ${tier}`}
+              style={{ width: `${analysis.overall_risk_score}%` }}
+            />
+          </div>
+          <span className={`risk-meter-score ${tier}`}>
+            {analysis.overall_risk_score}% — {riskLabel(analysis.overall_risk_score)}
+          </span>
+        </div>
+      </div>
+
+      <div className="report-layout">
+        <nav className="report-nav">
+          {SECTIONS.map((s) => (
+            <a key={s.id} href={`#${s.id}`} className="report-nav-item">
+              <span className={`report-nav-dot${sectionHasFlag(s.keywords) ? " has-flag" : ""}`} />
+              {s.label}
+            </a>
+          ))}
+        </nav>
+
         <div>
-          <p className="eyebrow">Version {analysis.version}</p>
-          <h1>Analysis report for {analysis.filename}</h1>
+          {redFlags.length > 0 && (
+            <div className="issues-panel">
+              <h2>{redFlags.length} issue{redFlags.length > 1 ? "s" : ""} to review</h2>
+              {redFlags.map((flag, i) => (
+                <div key={i} className="issue-card">
+                  <div>
+                    <p className="issue-card-title">{flag.clause}</p>
+                    <p className="issue-card-reason">{flag.reason}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div id="non-compete" className="clause-group">
+            <h2>Non-compete</h2>
+            <dl>
+              <div className="clause-row">
+                <dt>Present</dt>
+                <dd>{analysis.non_compete.present ? "Yes" : "No"}</dd>
+              </div>
+              <div className="clause-row">
+                <dt>Details</dt>
+                <dd className="clause-quote">{analysis.non_compete.details}</dd>
+              </div>
+            </dl>
+          </div>
+
+          <div id="dates" className="clause-group">
+            <h2>Dates</h2>
+            <dl>
+              <div className="clause-row">
+                <dt>Effective</dt>
+                <dd>{analysis.dates.effective_date}</dd>
+              </div>
+              <div className="clause-row">
+                <dt>Expiration</dt>
+                <dd>{analysis.dates.expiration_date}</dd>
+              </div>
+              <div className="clause-row">
+                <dt>Renewal</dt>
+                <dd className="clause-quote">{analysis.dates.renewal_terms}</dd>
+              </div>
+            </dl>
+          </div>
+
+          <div id="liability" className="clause-group">
+            <h2>Liability</h2>
+            <dl>
+              <div className="clause-row">
+                <dt>Cap present</dt>
+                <dd>{analysis.liability.cap_present ? "Yes" : "No"}</dd>
+              </div>
+              <div className="clause-row">
+                <dt>Details</dt>
+                <dd className="clause-quote">{analysis.liability.details}</dd>
+              </div>
+            </dl>
+          </div>
+
+          <div id="termination" className="clause-group">
+            <h2>Termination</h2>
+            <dl>
+              <div className="clause-row">
+                <dt>Notice period</dt>
+                <dd>{analysis.termination?.notice_period || "Not specified"}</dd>
+              </div>
+              <div className="clause-row">
+                <dt>For cause</dt>
+                <dd className="clause-quote">{analysis.termination?.for_cause || "Not specified"}</dd>
+              </div>
+              <div className="clause-row">
+                <dt>For convenience</dt>
+                <dd className="clause-quote">{analysis.termination?.for_convenience || "Not specified"}</dd>
+              </div>
+            </dl>
+          </div>
+
+          <div id="indemnification" className="clause-group">
+            <h2>Indemnification</h2>
+            <dl>
+              <div className="clause-row">
+                <dt>Present</dt>
+                <dd>{analysis.indemnification?.present ? "Yes" : "No"}</dd>
+              </div>
+              <div className="clause-row">
+                <dt>Who indemnifies</dt>
+                <dd>{analysis.indemnification?.who_indemnifies || "Not specified"}</dd>
+              </div>
+              <div className="clause-row">
+                <dt>Scope</dt>
+                <dd className="clause-quote">{analysis.indemnification?.scope || "Not specified"}</dd>
+              </div>
+            </dl>
+          </div>
+
+          <div id="governing-law" className="clause-group">
+            <h2>Governing law</h2>
+            <dl>
+              <div className="clause-row">
+                <dt>Jurisdiction</dt>
+                <dd>{analysis.governing_law?.jurisdiction || "Not specified"}</dd>
+              </div>
+              <div className="clause-row">
+                <dt>Dispute resolution</dt>
+                <dd className="clause-quote">{analysis.governing_law?.dispute_resolution || "Not specified"}</dd>
+              </div>
+            </dl>
+          </div>
+
+          <div id="auto-renewal" className="clause-group">
+            <h2>Auto-renewal</h2>
+            <dl>
+              <div className="clause-row">
+                <dt>Present</dt>
+                <dd>{analysis.auto_renewal?.present ? "Yes" : "No"}</dd>
+              </div>
+              <div className="clause-row">
+                <dt>Opt-out deadline</dt>
+                <dd>{analysis.auto_renewal?.opt_out_deadline || "Not specified"}</dd>
+              </div>
+              <div className="clause-row">
+                <dt>Details</dt>
+                <dd className="clause-quote">{analysis.auto_renewal?.details || "Not specified"}</dd>
+              </div>
+            </dl>
+          </div>
+
+          {error && <p className="error-text">{error}</p>}
+          {rerunDone && <p className="save-confirmed">Re-run complete — showing latest results.</p>}
+
+          <div className="report-actions">
+            <button onClick={rerun} className="btn btn-secondary" disabled={rerunning}>
+              {rerunning ? "Re-running…" : "Re-run analysis"}
+            </button>
+            <span className="version-field">Version {analysis.version}</span>
+          </div>
         </div>
-        <div className={`risk-badge ${riskTier(analysis.overall_risk_score)}`}>
-          <span className="risk-number">{analysis.overall_risk_score + "%"}</span>
-          <span className="risk-label">Risk</span>
-        </div>
-      </div>
-
-      <div className="clause-group">
-        <p className="eyebrow">Non-compete</p>
-        <dl>
-          <div className="clause-row">
-            <dt>Present</dt>
-            <dd>{analysis.non_compete.present ? "Yes" : "No"}</dd>
-          </div>
-          <div className="clause-row">
-            <dt>Details</dt>
-            <dd>{analysis.non_compete.details}</dd>
-          </div>
-        </dl>
-      </div>
-
-      <div className="clause-group">
-        <p className="eyebrow">Dates</p>
-        <dl>
-          <div className="clause-row">
-            <dt>Effective</dt>
-            <dd>{analysis.dates.effective_date}</dd>
-          </div>
-          <div className="clause-row">
-            <dt>Expiration</dt>
-            <dd>{analysis.dates.expiration_date}</dd>
-          </div>
-          <div className="clause-row">
-            <dt>Renewal</dt>
-            <dd>{analysis.dates.renewal_terms}</dd>
-          </div>
-        </dl>
-      </div>
-
-      <div className="clause-group">
-        <p className="eyebrow">Liability</p>
-        <dl>
-          <div className="clause-row">
-            <dt>Cap present</dt>
-            <dd>{analysis.liability.cap_present ? "Yes" : "No"}</dd>
-          </div>
-          <div className="clause-row">
-            <dt>Details</dt>
-            <dd>{analysis.liability.details}</dd>
-          </div>
-        </dl>
-      </div>
-
-      <div className="clause-group">
-        <p className="eyebrow">Termination</p>
-        <dl>
-          <div className="clause-row">
-            <dt>Notice period</dt>
-            <dd>{analysis.termination?.notice_period || "Not specified"}</dd>
-          </div>
-          <div className="clause-row">
-            <dt>For cause</dt>
-            <dd>{analysis.termination?.for_cause || "Not specified"}</dd>
-          </div>
-          <div className="clause-row">
-            <dt>For convenience</dt>
-            <dd>{analysis.termination?.for_convenience || "Not specified"}</dd>
-          </div>
-        </dl>
-      </div>
-
-      <div className="clause-group">
-        <p className="eyebrow">Indemnification</p>
-        <dl>
-          <div className="clause-row">
-            <dt>Present</dt>
-            <dd>{analysis.indemnification?.present ? "Yes" : "No"}</dd>
-          </div>
-          <div className="clause-row">
-            <dt>Who indemnifies</dt>
-            <dd>{analysis.indemnification?.who_indemnifies || "Not specified"}</dd>
-          </div>
-          <div className="clause-row">
-            <dt>Scope</dt>
-            <dd>{analysis.indemnification?.scope || "Not specified"}</dd>
-          </div>
-        </dl>
-      </div>
-
-      <div className="clause-group">
-        <p className="eyebrow">Governing law</p>
-        <dl>
-          <div className="clause-row">
-            <dt>Jurisdiction</dt>
-            <dd>{analysis.governing_law?.jurisdiction || "Not specified"}</dd>
-          </div>
-          <div className="clause-row">
-            <dt>Dispute resolution</dt>
-            <dd>{analysis.governing_law?.dispute_resolution || "Not specified"}</dd>
-          </div>
-        </dl>
-      </div>
-
-      <div className="clause-group">
-        <p className="eyebrow">Auto-renewal</p>
-        <dl>
-          <div className="clause-row">
-            <dt>Present</dt>
-            <dd>{analysis.auto_renewal?.present ? "Yes" : "No"}</dd>
-          </div>
-          <div className="clause-row">
-            <dt>Opt-out deadline</dt>
-            <dd>{analysis.auto_renewal?.opt_out_deadline || "Not specified"}</dd>
-          </div>
-          <div className="clause-row">
-            <dt>Details</dt>
-            <dd>{analysis.auto_renewal?.details || "Not specified"}</dd>
-          </div>
-        </dl>
-      </div>
-
-      {analysis.red_flags && analysis.red_flags.length > 0 && (
-        <div className="clause-group">
-          <p className="eyebrow">Red flags</p>
-          <ul>
-            {analysis.red_flags.map((flag, i) => (
-              <li key={i} className="clause-row">
-                <strong>{flag.clause}</strong> — {flag.reason}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      {error && <p className="error-text">{error}</p>}
-      {rerunDone && <p className="save-confirmed">Re-run complete — showing latest results.</p>}
-
-      <div className="report-actions">
-        {analysis.report_url && (
-          <a href={analysis.report_url} className="btn btn-secondary">Download PDF</a>
-        )}
-        <button onClick={rerun} className="btn btn-secondary" disabled={rerunning}>
-          {rerunning ? "Re-running…" : "Re-run analysis"}
-        </button>
-        <span className="version-field">Version {analysis.version}</span>
       </div>
     </div>
   );
