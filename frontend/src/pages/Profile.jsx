@@ -75,7 +75,7 @@ export default function Profile() {
               </div>
               <div className="profile-row">
                 <dt>Role</dt>
-                <dd><span className={`stamp stamp-${me.role === "admin" ? "completed" : "pending"}`}>{me.role}</span></dd>
+                <dd><span className={`status-tag ${me.role === "admin" ? "status-tag-completed" : "status-tag-pending"}`}>{me.role}</span></dd>
               </div>
               <div className="profile-row">
                 <dt>Title</dt>
