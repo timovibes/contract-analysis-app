@@ -9,11 +9,11 @@
   --accent: #4B3F72;
   --accent-hover: #3B3159;
 
-  --risk-low: #3F7A5C;
+  --risk-low: #00ff7b;
   --risk-low-bg: #E7F1EB;
   --risk-med: #B8792E;
   --risk-med-bg: #F7ECDC;
-  --risk-high: #B23A2E;
+  --risk-high: #ff1500;
   --risk-high-bg: #FBE9E7;
 
   --slate: #5B6470;
@@ -511,7 +511,7 @@ input:focus {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: var(--line);
+  background: var(--risk-low);
   flex-shrink: 0;
 }
 .report-nav-dot.has-flag { background: var(--risk-high); }
