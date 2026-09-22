@@ -64,13 +64,21 @@ export default function Upload() {
 
   const pollRowUntilDone = (id, contractId) => {
     const interval = setInterval(async () => {
-      const { data } = await api.get(`/contracts/${contractId}`);
-      if (data.status === "completed") {
+      try {
+        const { data } = await api.get(`/contracts/${contractId}`);
+        if (data.status === "completed") {
+          clearInterval(interval);
+          patchBulkRow(id, { status: "completed" });
+        } else if (data.status === "failed") {
+          clearInterval(interval);
+          patchBulkRow(id, { status: "failed", error: data.error_message || "Analysis failed" });
+        }
+      } catch (err) {
         clearInterval(interval);
-        patchBulkRow(id, { status: "completed" });
-      } else if (data.status === "failed") {
-        clearInterval(interval);
-        patchBulkRow(id, { status: "failed", error: data.error_message || "Analysis failed" });
+        patchBulkRow(id, {
+          status: "failed",
+          error: err.response?.status === 404 ? "Contract no longer exists" : "Lost track of this upload",
+        });
       }
     }, 3000);
   };
