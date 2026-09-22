@@ -14,6 +14,19 @@ function riskLabel(score) {
   return "Low";
 }
 
+function formatDate(iso) {
+  return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
+
+// Show every date when there aren't many points; thin them out otherwise
+// so labels don't collide. Always keeps the first and last point labeled.
+function shouldLabel(i, total) {
+  if (total <= 6) return true;
+  if (i === 0 || i === total - 1) return true;
+  const step = Math.ceil(total / 5);
+  return i % step === 0;
+}
+
 export default function Analytics() {
   const [data, setData] = useState(null);
   const [error, setError] = useState("");
@@ -67,12 +80,12 @@ export default function Analytics() {
     liability_cap: "Liability cap",
   };
 
-  const trendMax = Math.max(...risk_trend.map((r) => r.risk_score), 100);
   const w = 600;
-  const h = 160;
+  const h = 140;
+  const yAxisWidth = 28;
   const points = risk_trend.map((r, i) => {
     const x = risk_trend.length > 1 ? (i / (risk_trend.length - 1)) * w : 0;
-    const y = h - (r.risk_score / trendMax) * h;
+    const y = h - (r.risk_score / 100) * h;
     return { ...r, x, y };
   });
   const polylinePoints = points.map((p) => `${p.x},${p.y}`).join(" ");
@@ -132,14 +145,60 @@ export default function Analytics() {
       <div className="doc-card">
         <h2>Risk trend</h2>
         {points.length > 1 ? (
-          <svg viewBox={`0 0 ${w} ${h}`} className="analytics-trend-svg" preserveAspectRatio="none">
-            <polyline points={polylinePoints} fill="none" stroke="var(--ink)" strokeWidth="2" />
-            {points.map((p, i) => (
-              <circle key={i} cx={p.x} cy={p.y} r="3" fill={riskColor(p.risk_score)}>
-                <title>{`${p.contract_filename}: ${p.risk_score}`}</title>
-              </circle>
-            ))}
-          </svg>
+          <div>
+            <div style={{ display: "flex", gap: 8 }}>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "space-between",
+                  width: yAxisWidth,
+                  height: h,
+                  fontFamily: "var(--font-mono)",
+                  fontSize: 11,
+                  color: "var(--muted)",
+                  flexShrink: 0,
+                }}
+              >
+                <span>100</span>
+                <span>50</span>
+                <span>0</span>
+              </div>
+
+              <svg
+                viewBox={`0 0 ${w} ${h}`}
+                className="analytics-trend-svg"
+                preserveAspectRatio="none"
+                style={{ height: h, flex: 1, marginBottom: 0 }}
+              >
+                <line x1="0" y1="0" x2={w} y2="0" className="analytics-grid-line" />
+                <line x1="0" y1={h / 2} x2={w} y2={h / 2} className="analytics-grid-line" />
+                <line x1="0" y1={h} x2={w} y2={h} className="analytics-grid-line" />
+                <polyline points={polylinePoints} fill="none" stroke="var(--ink)" strokeWidth="2" />
+                {points.map((p, i) => (
+                  <circle key={i} cx={p.x} cy={p.y} r="3" fill={riskColor(p.risk_score)}>
+                    <title>{`${p.contract_filename}: ${p.risk_score} — ${formatDate(p.date)}`}</title>
+                  </circle>
+                ))}
+              </svg>
+            </div>
+
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                marginLeft: yAxisWidth + 8,
+                marginTop: 6,
+                fontFamily: "var(--font-mono)",
+                fontSize: 10,
+                color: "var(--muted)",
+              }}
+            >
+              {points.map((p, i) => (
+                <span key={i}>{shouldLabel(i, points.length) ? formatDate(p.date) : ""}</span>
+              ))}
+            </div>
+          </div>
         ) : (
           <p className="upload-status">Analyze at least two contracts to see a trend.</p>
         )}
