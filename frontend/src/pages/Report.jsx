@@ -66,6 +66,11 @@ export default function Report() {
   const sectionHasFlag = (keywords) =>
     redFlags.some((f) => keywords.some((k) => (f.clause || "").toLowerCase().includes(k)));
 
+  const allKeywords = SECTIONS.flatMap((s) => s.keywords);
+  const unmatchedFlags = redFlags.filter(
+    (f) => !allKeywords.some((k) => (f.clause || "").toLowerCase().includes(k))
+  );
+
   const tier = riskTier(analysis.overall_risk_score);
 
   return (
@@ -102,11 +107,17 @@ export default function Report() {
               {s.label}
             </a>
           ))}
+          {unmatchedFlags.length > 0 && (
+            <a href="#issues" className="report-nav-item">
+              <span className="report-nav-dot has-flag" />
+              Other ({unmatchedFlags.length})
+            </a>
+          )}
         </nav>
 
         <div>
           {redFlags.length > 0 && (
-            <div className="issues-panel">
+            <div className="issues-panel" id="issues">
               <h2>{redFlags.length} issue{redFlags.length > 1 ? "s" : ""} to review</h2>
               {redFlags.map((flag, i) => (
                 <div key={i} className="issue-card">
