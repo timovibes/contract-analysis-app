@@ -13,6 +13,11 @@ def extract_text(file_field) -> str:
         reader = PdfReader(path)
         return "\n".join(page.extract_text() or "" for page in reader.pages)
 
+    if path.lower().endswith(".docx"):
+        from docx import Document
+        doc = Document(path)
+        return "\n".join(p.text for p in doc.paragraphs)
+
     with open(path, "r", encoding="utf-8", errors="ignore") as f:
         return f.read()
 
