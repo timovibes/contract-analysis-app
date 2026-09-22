@@ -24,6 +24,26 @@ const SECTIONS = [
   { id: "auto-renewal", label: "Auto-renewal", keywords: ["renew"] },
 ];
 
+function isUnknownText(text) {
+  if (!text) return false;
+  const t = text.trim().toLowerCase();
+  if (t === "unknown") return true;
+  return /could not be determined|unreadable|could not be extracted|corrupt(ed)?|not readable|no readable|unable to (read|determine|extract)/.test(t);
+}
+
+function sectionTexts(id, analysis) {
+  switch (id) {
+    case "non-compete": return [analysis.non_compete?.details];
+    case "dates": return [analysis.dates?.effective_date, analysis.dates?.expiration_date, analysis.dates?.renewal_terms];
+    case "liability": return [analysis.liability?.details];
+    case "termination": return [analysis.termination?.notice_period, analysis.termination?.for_cause, analysis.termination?.for_convenience];
+    case "indemnification": return [analysis.indemnification?.who_indemnifies, analysis.indemnification?.scope];
+    case "governing-law": return [analysis.governing_law?.jurisdiction, analysis.governing_law?.dispute_resolution];
+    case "auto-renewal": return [analysis.auto_renewal?.details];
+    default: return [];
+  }
+}
+
 export default function Report() {
   const { id } = useParams();
   const [analysis, setAnalysis] = useState(null);
@@ -65,6 +85,7 @@ export default function Report() {
   const redFlags = analysis.red_flags || [];
   const sectionHasFlag = (keywords) =>
     redFlags.some((f) => keywords.some((k) => (f.clause || "").toLowerCase().includes(k)));
+  const sectionIsUnknown = (id) => sectionTexts(id, analysis).some(isUnknownText);
 
   const allKeywords = SECTIONS.flatMap((s) => s.keywords);
   const unmatchedFlags = redFlags.filter(
@@ -101,12 +122,18 @@ export default function Report() {
 
       <div className="report-layout">
         <nav className="report-nav">
-          {SECTIONS.map((s) => (
-            <a key={s.id} href={`#${s.id}`} className="report-nav-item">
-              <span className={`report-nav-dot${sectionHasFlag(s.keywords) ? " has-flag" : ""}`} />
-              {s.label}
-            </a>
-          ))}
+          {SECTIONS.map((s) => {
+            const flagged = sectionHasFlag(s.keywords);
+            const unknown = !flagged && sectionIsUnknown(s.id);
+            const dotState = flagged ? " has-flag" : unknown ? " unknown" : "";
+            const title = flagged ? "Issue found" : unknown ? "Could not be determined" : "No issues found";
+            return (
+              <a key={s.id} href={`#${s.id}`} className="report-nav-item">
+                <span className={`report-nav-dot${dotState}`} title={title} />
+                {s.label}
+              </a>
+            );
+          })}
           {unmatchedFlags.length > 0 && (
             <a href="#issues" className="report-nav-item">
               <span className="report-nav-dot has-flag" />
