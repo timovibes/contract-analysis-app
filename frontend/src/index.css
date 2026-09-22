@@ -632,3 +632,124 @@ input:focus {
   padding: 12px 0;
 }
 .profile-edit-row input { flex: 1; }
+
+
+/* ---------- Analytics ---------- */
+
+.analytics-stat-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.analytics-stat-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 20px 22px;
+}
+
+.analytics-stat-label {
+  font-family: var(--font-display);
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--muted);
+  margin: 0 0 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.analytics-stat-value {
+  font-family: var(--font-mono);
+  font-size: 2rem;
+  font-weight: 600;
+  margin: 0;
+  color: var(--ink);
+  line-height: 1;
+}
+
+.analytics-stat-sub {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.doc-card + .doc-card { margin-top: 20px; }
+
+.analytics-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+}
+
+.analytics-bar-label {
+  width: 110px;
+  flex-shrink: 0;
+  font-size: 13.5px;
+  color: var(--ink);
+  text-transform: capitalize;
+}
+
+.analytics-bar-track {
+  flex: 1;
+  height: 8px;
+  background: var(--bone);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.analytics-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+.analytics-bar-count {
+  width: 36px;
+  flex-shrink: 0;
+  text-align: right;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.analytics-trend-svg {
+  width: 100%;
+  height: 160px;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.analytics-recent-list {
+  list-style: none;
+  margin: 16px 0 0;
+  padding: 12px 0 0;
+  border-top: 1px solid var(--line);
+}
+
+.analytics-recent-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  font-size: 13.5px;
+  border-bottom: 1px solid var(--line);
+}
+.analytics-recent-list li:last-child { border-bottom: none; }
+
+.analytics-recent-list li span:first-child {
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.analytics-recent-list li span:last-child {
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-weight: 600;
+}
