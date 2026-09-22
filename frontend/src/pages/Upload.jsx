@@ -3,7 +3,11 @@ import { useNavigate } from "react-router-dom";
 import api from "../api";
 
 const MAX_SIZE_MB = 20;
-const ALLOWED_TYPES = ["application/pdf", "text/plain"];
+const ALLOWED_TYPES = [
+  "application/pdf",
+  "text/plain",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+];
 
 const statusTagClass = {
   pending: "status-tag status-tag-pending",
@@ -25,7 +29,7 @@ export default function Upload() {
     if (!file) return;
 
     if (!ALLOWED_TYPES.includes(file.type)) {
-      setStatus("Invalid file type. Upload a PDF or plain text file.");
+      setStatus("Invalid file type. Upload a PDF, Word (.docx), or plain text file.");
       return;
     }
     if (file.size > MAX_SIZE_MB * 1024 * 1024) {
@@ -119,11 +123,11 @@ export default function Upload() {
           <path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
         <p style={{ margin: "10px 0 0", fontWeight: 500 }}>Drag a contract here, or click to browse</p>
-        <p className="dropzone-hint">PDF or plain text, up to {MAX_SIZE_MB}MB</p>
+        <p className="dropzone-hint">PDF, Word (.docx), or plain text, up to {MAX_SIZE_MB}MB</p>
         <input
           ref={fileInputRef}
           type="file"
-          accept=".pdf,.txt"
+          accept=".pdf,.txt,.docx"
           style={{ display: "none" }}
           onChange={(e) => validateAndHandle(e.target.files[0])}
         />
