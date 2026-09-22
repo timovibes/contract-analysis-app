@@ -515,6 +515,7 @@ input:focus {
   flex-shrink: 0;
 }
 .report-nav-dot.has-flag { background: var(--risk-high); }
+.report-nav-dot.unknown { background: var(--line); }
 
 .issues-panel {
   margin-bottom: 28px;
