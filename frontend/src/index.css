@@ -764,3 +764,63 @@ input:focus {
   font-family: var(--font-mono);
   font-weight: 600;
 }
+
+
+/* ---------- Bulk upload ---------- */
+
+.bulk-file-list {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.bulk-file-row {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+}
+
+.bulk-file-row-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.bulk-file-name {
+  font-size: 13.5px;
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bulk-file-progress {
+  height: 4px;
+  background: var(--line);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+.bulk-file-progress-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 999px;
+  transition: width 0.2s ease;
+}
+
+.bulk-file-error {
+  font-size: 12px;
+  color: var(--risk-high);
+  margin: 6px 0 0;
+}
+
+.status-tag-duplicate { color: var(--slate); background: #EAECEF; }
+
+.bulk-summary {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 14px 0 0;
+}
