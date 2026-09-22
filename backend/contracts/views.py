@@ -152,6 +152,16 @@ class PendingUsersView(generics.ListAPIView):
         return User.objects.filter(status="pending").order_by("-created_at")
 
 
+class AllUsersView(generics.ListAPIView):
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        if self.request.user.role != "admin":
+            raise PermissionDenied("Admins only")
+        return User.objects.all().order_by("-created_at")
+
+
 class ApproveUserView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
